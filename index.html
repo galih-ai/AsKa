@@ -70,8 +70,8 @@
     <p id="connection-error" class="error" role="alert"></p>
   </section>
   <section id="connection-state" class="centered" role="status" aria-live="polite" hidden>
-    <h2 id="connection-title">Menghubungkan aplikasi…</h2>
-    <p id="connection-description" class="muted">Sedang memuat aplikasi dari Apps Script.</p>
+    <h2 id="connection-title">Mohon tunggu sejenak…</h2>
+    <p id="connection-description" class="muted" hidden></p>
   </section>
   <iframe id="app-frame" title="Aplikasi kartu asesmen SMP Negeri 15 Balikpapan" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" hidden></iframe>
 </main>
@@ -100,7 +100,7 @@ function canonicalUrl(value) {
 function report(text, state) {
   statusLine.textContent = text;
   statusLine.dataset.state = state || 'waiting';
-  statusLine.hidden = false;
+  statusLine.hidden = !text;
 }
 function showSetup(error) {
   setup.hidden = false;
@@ -123,7 +123,8 @@ function showBlockedState() {
   document.getElementById('connection-state').hidden = false;
   document.getElementById('connection-title').textContent = 'Aplikasi belum berhasil ditampilkan di sini';
   document.getElementById('connection-description').textContent = 'Periksa akun Google, izin deployment, dan pengaturan browser, lalu pilih Coba lagi di halaman ini.';
-  report('Koneksi aplikasi belum berhasil. Silakan coba lagi.', 'blocked');
+  document.getElementById('connection-description').hidden = false;
+  report('Aplikasi belum dapat dimuat. Silakan coba lagi.', 'blocked');
 }
 function mount(value) {
   prepare(value);
@@ -137,11 +138,12 @@ function mount(value) {
   document.getElementById('landing-page').hidden = true;
   document.getElementById('app-toolbar').hidden = false;
   document.getElementById('connection-state').hidden = false;
-  document.getElementById('connection-title').textContent = 'Menghubungkan aplikasi…';
-  document.getElementById('connection-description').textContent = 'Sedang memuat aplikasi dari Apps Script.';
+  document.getElementById('connection-title').textContent = 'Mohon tunggu sejenak…';
+  document.getElementById('connection-description').textContent = '';
+  document.getElementById('connection-description').hidden = true;
   frame.hidden = true;
   frame.src = embedded.href;
-  report('Menghubungkan aplikasi ke Apps Script…');
+  report('', 'waiting');
   loadTimer = setTimeout(showBlockedState, 12000);
 }
 function requestScreen() {
@@ -175,7 +177,7 @@ window.addEventListener('message', function(event) {
     ready = true; clearTimeout(loadTimer);
     document.getElementById('connection-state').hidden = true;
     frame.hidden = false;
-    report('Aplikasi terhubung.', 'ready');
+    report('Aplikasi siap digunakan.', 'ready');
   }
 });
 document.getElementById('start-button').addEventListener('click', function() {
